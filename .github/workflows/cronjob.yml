@@ -1,0 +1,71 @@
+name: Run Cronjob to Mark Attendance
+
+on:
+  schedule:
+    - cron: '30 3 * * 1-5'  # Runs at 9 AM IST (3:30 AM UTC) Monday to Friday
+    - cron: '30 12 * * 1-5'  # Runs at 6 PM IST (12:30 PM UTC) Monday to Friday
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  run-cronjob:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      - name: Run attendance marking cron job
+        run: |
+          # Get the environment variables from GitHub Secrets
+          LOGIN_URL=${{ secrets.LOGIN_URL }}
+          MARK_ATTENDANCE_URL=${{ secrets.MARK_ATTENDANCE_URL }}
+          COMPANY_DOMAIN_CODE=${{ secrets.COMPANY_DOMAIN_CODE }}
+          EMPLOYEES_JSON=${{ secrets.EMPLOYEES }}
+          
+          # Parse the employees JSON string
+          EMPLOYEES=$(echo $EMPLOYEES_JSON | jq -c '.[]')
+
+          # Loop through each employee
+          echo $EMPLOYEES | while IFS= read -r EMPLOYEE; do
+            EMPLOYEE_ID=$(echo $EMPLOYEE | jq -r '.employeeId')
+            NAME=$(echo $EMPLOYEE | jq -r '.name')
+            EMAIL=$(echo $EMPLOYEE | jq -r '.email')
+            PASSWORD=$(echo $EMPLOYEE | jq -r '.password')
+            
+            # Get the current date and time
+            CURRENT_TIME=$(date '+%Y-%m-%d %H:%M')
+
+            # Step 1: Get the OAuth token for the employee
+            RESPONSE=$(curl -s -X POST $LOGIN_URL \
+              -d "username=$EMAIL" \
+              -d "password=$PASSWORD" \
+              -d "grant_type=password" \
+              -d "loginType=1" \
+              -d "companyDomainCode=$COMPANY_DOMAIN_CODE" \
+              -d "isUpdated=1" \
+              -d "validSource=1")
+
+            ACCESS_TOKEN=$(echo $RESPONSE | jq -r '.access_token')
+
+            if [[ "$ACCESS_TOKEN" != "null" ]]; then
+              # Step 2: Mark attendance for the employee
+              RESPONSE=$(curl -s -X POST $MARK_ATTENDANCE_URL \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d '{
+                      "requestType": "A",
+                      "employeeId": "'"$EMPLOYEE_ID"'",
+                      "punchTime": "'"$CURRENT_TIME"'",
+                      "attendanceSource": "A",
+                      "attendanceType": "Online"
+                    }')
+
+              MESSAGE=$(echo $RESPONSE | jq -r '.message')
+              echo "Employee $NAME ($EMAIL): $MESSAGE"
+            else
+              echo "Failed to get access token for $NAME ($EMAIL)"
+            fi
+          done
