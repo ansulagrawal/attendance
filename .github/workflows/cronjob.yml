@@ -63,8 +63,8 @@ jobs:
                     }')
 
               MESSAGE=$(echo $RESPONSE | jq -r '.message')
-              echo "Employee $NAME ($EMPUSERNAME): $MESSAGE"
+              echo "Employee $EMPUSERNAME: $MESSAGE"
             else
-              echo "Failed to get access token for $NAME ($EMPUSERNAME)"
+              echo "Failed to get access token for $EMPUSERNAME"
             fi
           done
