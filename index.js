@@ -42,10 +42,19 @@ async function markAttendance() {
         if (accessToken) {
           const markPayload = {
             requestType: 'A',
-            employeeId: employee.employeeId,
-            punchTime: moment().format('YYYY-MM-DD HH:mm'),
-            attendanceSource: 'A',
+            latitude: '',
+            longitude: '',
+            geoAccuracy: '',
+            geoLocation: '',
+            remarks: '',
+            uploadedPhotoOneName: '',
+            uploadedPhotoOnePath: '',
+            uploadedPhotoTwoName: '',
+            uploadedPhotoTwoPath: '',
+            attendanceSource: 'W',
             attendanceType: 'Online',
+            employeeId: employee.employeeId,
+            punchTime: moment().format('YYYY-MM-DDTHH:mm'),
           };
 
           const headers = {
