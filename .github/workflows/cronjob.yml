@@ -28,12 +28,11 @@ jobs:
       # Step 4: Run Attendance Script
       - name: Run Attendance Script
         env:
-          LOGIN_URL: ${{ vars.LOGIN_URL }}
-          MARK_ATTENDANCE_URL: ${{ vars.MARK_ATTENDANCE_URL }}
-          COMPANY: ${{ vars.COMPANY }}
-          EMPLOYEES: ${{ vars.EMPLOYEES }}
+          LOGIN_URL: ${{ secrets.LOGIN_URL }}
+          MARK_ATTENDANCE_URL: ${{ secrets.MARK_ATTENDANCE_URL }}
+          COMPANY: ${{ secrets.COMPANY }}
+          EMPLOYEES: ${{ secrets.EMPLOYEES }}
         run: |
-          echo "EMPLOYEES: $EMPLOYEES"
           echo "LOGIN_URL: $LOGIN_URL"
           echo "COMPANY: $COMPANY"
           echo "MARK_ATTENDANCE_URL: $MARK_ATTENDANCE_URL"
