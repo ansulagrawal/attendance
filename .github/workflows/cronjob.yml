@@ -33,8 +33,5 @@ jobs:
           COMPANY: ${{ secrets.COMPANY }}
           EMPLOYEES: ${{ secrets.EMPLOYEES }}
         run: |
-          echo "LOGIN_URL: $LOGIN_URL"
-          echo "COMPANY: $COMPANY"
-          echo "MARK_ATTENDANCE_URL: $MARK_ATTENDANCE_URL"
           node index.js
 
