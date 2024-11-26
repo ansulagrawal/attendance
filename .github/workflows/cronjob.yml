@@ -32,6 +32,7 @@ jobs:
           MARK_ATTENDANCE_URL: ${{ secrets.MARK_ATTENDANCE_URL }}
           COMPANY: ${{ secrets.COMPANY }}
           EMPLOYEES: ${{ secrets.EMPLOYEES }}
+          TIME_ZONE: ${{ secrets.TIME_ZONE }}
         run: |
           node index.js
 
