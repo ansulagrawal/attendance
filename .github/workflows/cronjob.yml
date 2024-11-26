@@ -32,4 +32,4 @@ jobs:
           MARK_ATTENDANCE_URL: ${{ vars.MARK_ATTENDANCE_URL }}
           COMPANY: ${{ vars.COMPANY }}
           EMPLOYEES: ${{ vars.EMPLOYEES }}
-        run: node attendance.js
+        run: node index.js
