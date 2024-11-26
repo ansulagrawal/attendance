@@ -71,6 +71,7 @@ async function markAttendance() {
     }
   } catch (error) {
     console.error('Error in markAttendance function:', error.message);
+    console.error('Error:', error);
   }
 }
 
