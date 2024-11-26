@@ -27,14 +27,15 @@ jobs:
 
       # Step 4: Run Attendance Script
       - name: Run Attendance Script
-        run: |
-          echo "EMPLOYEES: $EMPLOYEES"
-          echo "LOGIN_URL: $LOGIN_URL"
-          echo "COMPANY: $COMPANY"
-          echo "MARK_ATTENDANCE_URL: $MARK_ATTENDANCE_URL"
         env:
           LOGIN_URL: ${{ vars.LOGIN_URL }}
           MARK_ATTENDANCE_URL: ${{ vars.MARK_ATTENDANCE_URL }}
           COMPANY: ${{ vars.COMPANY }}
           EMPLOYEES: ${{ vars.EMPLOYEES }}
-        run: node index.js
+        run: |
+          echo "EMPLOYEES: $EMPLOYEES"
+          echo "LOGIN_URL: $LOGIN_URL"
+          echo "COMPANY: $COMPANY"
+          echo "MARK_ATTENDANCE_URL: $MARK_ATTENDANCE_URL"
+          node index.js
+
