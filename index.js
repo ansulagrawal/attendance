@@ -23,7 +23,6 @@ async function markAttendance() {
     // Loop through each employee and mark attendance
     for (const employee of employees) {
       const formData = new FormData();
-      console.log(JSON.stringify(employee), employee)
       formData.append('username', employee.username);
       formData.append('password', employee.password);
       formData.append('grant_type', 'password');
