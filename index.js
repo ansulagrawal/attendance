@@ -11,6 +11,7 @@ async function markAttendance() {
       return;
     }
 
+    const timeZone = process.env.TIME_ZONE || '00:00';
     const loginURL = process.env.LOGIN_URL;
     const companyDomainCode = process.env.COMPANY;
     const markAttendanceURL = process.env.MARK_ATTENDANCE_URL;
@@ -54,7 +55,7 @@ async function markAttendance() {
             attendanceSource: 'W',
             attendanceType: 'Online',
             employeeId: employee.employeeId,
-            punchTime: moment().format('YYYY-MM-DDTHH:mm'),
+            punchTime: moment().utcOffset(`+${timeZone}`).format('YYYY-MM-DD HH:mm'),
           };
 
           const headers = {
@@ -67,7 +68,7 @@ async function markAttendance() {
 
           console.log(
             `Employee ${employee.employeeId}: ${attendanceResponse.data.message}`,
-            moment().format('YYYY-MM-DD HH:mm')
+            moment().utcOffset(`+${timeZone}`).format('YYYY-MM-DD HH:mm')
           );
         } else {
           console.error(
