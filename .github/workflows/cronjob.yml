@@ -1,4 +1,4 @@
-name: Run Cronjob to Mark Attendance
+name: Mark Attendance Cronjob
 
 on:
   # schedule:
@@ -7,64 +7,29 @@ on:
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
-  run-cronjob:
+  mark-attendance:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the repository
+      # Step 1: Check out the repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install jq
-        run: sudo apt-get install jq
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # Use a compatible version of Node.js
 
-      - name: Run attendance marking cron job
-        run: |
-          # Get the environment variables from GitHub Secrets
-          LOGIN_URL=${{ secrets.LOGIN_URL }}
-          MARK_ATTENDANCE_URL=${{ secrets.MARK_ATTENDANCE_URL }}
-          COMPANY_DOMAIN_CODE=${{ secrets.COMPANY_DOMAIN_CODE }}
-          EMPLOYEES_JSON=${{ secrets.EMPLOYEES }}
-          
-          # Parse the employees JSON string
-          EMPLOYEES=$(echo $EMPLOYEES_JSON | jq -c '.[]')
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: npm install axios moment form-data
 
-          # Loop through each employee
-          echo $EMPLOYEES | while IFS= read -r EMPLOYEE; do
-            EMPLOYEE_ID=$(echo $EMPLOYEE | jq -r '.employeeId')
-            EMPUSERNAME=$(echo $EMPLOYEE | jq -r '.username')
-            PASSWORD=$(echo $EMPLOYEE | jq -r '.password')
-            
-            # Get the current date and time
-            CURRENT_TIME=$(date '+%Y-%m-%d %H:%M')
-
-            # Step 1: Get the OAuth token for the employee
-            RESPONSE=$(curl -s -X POST $LOGIN_URL \
-              -d "username=$EMPUSERNAME" \
-              -d "password=$PASSWORD" \
-              -d "grant_type=password" \
-              -d "loginType=1" \
-              -d "companyDomainCode=$COMPANY_DOMAIN_CODE" \
-              -d "isUpdated=1" \
-              -d "validSource=1")
-
-            ACCESS_TOKEN=$(echo $RESPONSE | jq -r '.access_token')
-
-            if [[ "$ACCESS_TOKEN" != "null" ]]; then
-              # Step 2: Mark attendance for the employee
-              RESPONSE=$(curl -s -X POST $MARK_ATTENDANCE_URL \
-                -H "Authorization: Bearer $ACCESS_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d '{
-                      "requestType": "A",
-                      "employeeId": "'"$EMPLOYEE_ID"'",
-                      "punchTime": "'"$CURRENT_TIME"'",
-                      "attendanceSource": "A",
-                      "attendanceType": "Online"
-                    }')
-
-              MESSAGE=$(echo $RESPONSE | jq -r '.message')
-              echo "Employee $EMPUSERNAME: $MESSAGE"
-            else
-              echo "Failed to get access token for $EMPUSERNAME"
-            fi
-          done
+      # Step 4: Run Attendance Script
+      - name: Run Attendance Script
+        env:
+          LOGIN_URL: ${{ vars.LOGIN_URL }}
+          MARK_ATTENDANCE_URL: ${{ vars.MARK_ATTENDANCE_URL }}
+          COMPANY: ${{ vars.COMPANY }}
+          EMPLOYEES: ${{ vars.EMPLOYEES }}
+        run: node attendance.js
